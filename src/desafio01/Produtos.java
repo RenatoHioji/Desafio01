@@ -7,7 +7,7 @@ public class Produtos {
 	int estoque;
 	
 	
-	public Produtos(int id, String nome,Double valor, int estoque) {
+	public Produtos(int id, String nome,Double  valor, int estoque) {
 		super();
 		this.id = id;
 		this.valor = valor;
