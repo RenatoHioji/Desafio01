@@ -18,7 +18,7 @@ public class Conexao {
 	        try {
 	        	URL = "jdbc:postgresql://localhost:5432/Desafio01";
 	            USUARIO = "postgres";
-	            SENHA= "H@080804@h";
+	            SENHA= "";
 	            criarConexao= DriverManager.getConnection(URL, USUARIO, SENHA);
 	        } catch (SQLException e) {
 	            System.out.println("Falha ao conectar ao banco de dados...");
