@@ -124,6 +124,7 @@ public class ServicoTela {
 				else {
 					System.out.println("Retornando ao menu...");
 					adicionarOutro = "0";
+					carrinhoDeCompras.clear();
 				}
 			}
 		
