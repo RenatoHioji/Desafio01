@@ -15,9 +15,6 @@ public class Produtos {
 		this.estoque = estoque;
 	}
 
-	public String toString() {
-		return "Produtos [id=" + id + ", valor=" + valor + ", nome=" + nome + ", estoque=" + estoque + "]";
-	}
 	
 	public int getId() {
 		return id;
