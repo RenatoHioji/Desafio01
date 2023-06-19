@@ -1,4 +1,4 @@
-package desafio01.controller;
+package desafio01.controlador;
 
 import java.sql.Connection;
 import java.sql.ResultSet;
@@ -8,7 +8,7 @@ import java.util.List;
 
 import desafio01.CarrinhoDeCompras;
 import desafio01.conexao.Conexao;
-import desafio01.services.ServicoCarrinho;
+import desafio01.servicos.ServicoCarrinho;
 
 
 public class ControladorCarrinho{
@@ -59,7 +59,6 @@ public class ControladorCarrinho{
 		try {
 			ResultSet resultSet = declaracao2.executeQuery("SELECT * FROM produtos WHERE id =" + idCarrinho);
 			contagem = servicoCarrinho.contarResultado(resultSet, contagem);
-			System.out.println(contagem);
 		} catch (SQLException e) {
 			System.out.println("Não foi possível listar os produtos filtrados");
 		}
@@ -67,18 +66,19 @@ public class ControladorCarrinho{
 	}
 
 
-	public void adicionarBanco(List<CarrinhoDeCompras> carrinhoDeCompras) {
-
+	public void adicionarBanco(List<CarrinhoDeCompras> carrinhoDeCompras, Integer id_vendas) {
+		
 		for(CarrinhoDeCompras carrinhoMostrar : carrinhoDeCompras) {
 			id_produtoAdicionar = carrinhoMostrar.getIdProduto();
 			quantidadeAdicionar = carrinhoMostrar.getQuantidade();
 			try {
-				declaracao2.executeQuery("INSERT INTO compras(id_produto, quantidade, id_vendas) VALUES (" 
-			+ Integer.getInteger(id_produtoAdicionar) + ", " 
-			+ Integer.getInteger(quantidadeAdicionar) + ", 1");				
+				declaracao2.executeUpdate("INSERT INTO vendas(id_produto, quantidade, id_vendas) VALUES (" +
+						Integer.parseInt(id_produtoAdicionar) + ","
+						+ Integer.parseInt(quantidadeAdicionar) + "," + id_vendas + ")");			
 				
 			} catch (SQLException e) {
 				System.out.println("Não foi possível inserir os dados do carrinho ao banco.");
+				e.printStackTrace();
 			}
 		}	
 		
@@ -88,17 +88,16 @@ public class ControladorCarrinho{
 
 	public double somarTotal(Integer id_vendas, double valorTotal) {
 		try {
-			ResultSet resultSet = declaracao2.executeQuery("SELECT sum(valor * quantidade) FROM vendas JOIN produtos ON vendas.id_produto = produtos.id WHERE id_vendas ="+ id_vendas);
+			ResultSet resultSet = declaracao2.executeQuery("SELECT sum(valor*quantidade) as somaTotal FROM vendas JOIN produtos ON vendas.id_produto = produtos.id WHERE id_vendas ="+ id_vendas);
 			while(resultSet.next()) {
-				valorTotal = resultSet.getDouble(0);
+				valorTotal += resultSet.getDouble("somaTotal");
 			}
 		} catch (SQLException e) {
 			System.out.println("Não foi possível totalizar o valor do carrinho.");
-		}
-		
+		}	
 		
 		try {
-			declaracao2.executeQuery("DELETE * FROM vendas WHERE id_vendas = " + id_vendas);
+			declaracao2.executeUpdate("DELETE FROM vendas WHERE id_vendas = " + id_vendas);
 		} catch (SQLException e) {
 			System.out.println("Não foi possível remover os dados do banco.");
 		}
@@ -114,9 +113,10 @@ public class ControladorCarrinho{
 			id_produtoAdicionar = carrinhoMostrar.getIdProduto();
 			quantidadeAdicionar = carrinhoMostrar.getQuantidade();
 			try {
-				declaracao2.executeQuery("INSERT INTO compras(id_produto, quantidade, id_vendas) VALUES (" 
-			+ Integer.getInteger(id_produtoAdicionar) + ", " 
-			+ Integer.getInteger(quantidadeAdicionar) + ", " + id_vendas + "");				
+				declaracao2.executeUpdate("INSERT INTO vendas(id_produto, quantidade, id_vendas) VALUES (" +
+			Integer.parseInt(id_produtoAdicionar) + ","
+			+ Integer.parseInt(quantidadeAdicionar) + "," + id_vendas + ")");
+				
 				
 			} catch (SQLException e) {
 				System.out.println("Não foi possível finalizar a compra.");
@@ -128,9 +128,10 @@ public class ControladorCarrinho{
 
 	public void corrigirEstoque(List<CarrinhoDeCompras> carrinhoDeCompras, Integer id_vendas) {
 		try {
-			declaracao2.executeQuery("UDPATE SET estoque = estoque - (SELECT vendas.quantidade FROM vendas "
-					+ "WHERE produtos.id = vendas.id_produto AND vendas.id_vendas = "  + id_vendas +") "
-					+ "WHERE id IN ( SELECT id_produto FROM vendas WHERE id_vendas = " + id_vendas + ")");
+			declaracao2.executeUpdate("UPDATE produtos SET estoque = estoque - (SELECT vendas.quantidade "
+				    + "FROM vendas WHERE produtos.id = vendas.id_produto AND vendas.id_vendas = " + id_vendas
+				    + ") WHERE id IN (SELECT id_produto FROM vendas WHERE id_vendas = " + id_vendas
+				    + ")");
 		} catch (SQLException e) {
 			System.out.println("Não foi possível atualizar o estoque.");
 		}
@@ -140,8 +141,10 @@ public class ControladorCarrinho{
 	public Integer pegarIdVendas() {
 		int pegarId = 0;
 		try {
-			resultSet = declaracao2.executeQuery("SELECT id_vendas FROM vendas ORDER BY id_vendas LIMIT 1");
-			pegarId = resultSet.getInt("id_vendas");
+			resultSet = declaracao2.executeQuery("SELECT id_vendas FROM vendas ORDER BY id_vendas DESC LIMIT 1");
+			while(resultSet.next()) {
+				pegarId = resultSet.getInt("id_vendas") + 1;
+			}
 
 		} catch (SQLException e) {
 			System.out.println("Não foi possível criar um id do carrinho");
@@ -159,31 +162,23 @@ public class ControladorCarrinho{
 		}
 		return resultSet;
 		
+	}
+
+
+	public Integer verificarEstoque(List<CarrinhoDeCompras> carrinhoDeCompras, String idCarrinho, Integer nEstoque) {
+		try {
+			ResultSet resultSet = declaracao2.executeQuery("SELECT estoque FROM produtos WHERE id =" + Integer.parseInt(idCarrinho));
+			while(resultSet.next()) {
+				nEstoque = resultSet.getInt("estoque");
+			}
+		} catch (NumberFormatException e) {
+			System.out.println("Algo deu errado com o filtro do produto!");
+			
+		} catch (SQLException e) {
+			System.out.println("Não foi possível verificar o estoque de produtos");
+		}
+		return nEstoque;
 	}	
 		
 }
-
-	
-//	public String adicionarProdutos(Scanner leitura, ControladorCarrinho carrinhoController) {
-//		carrinhoController.lerInformacaoCarrinho(leitura);
-//		String compras;
-//		/*Adição de produtos ao carrinho*/
-//		System.out.println("Produto adicionado na sua lista de carrinho");
-//		System.out.println("Deseja continuar adicionando algum desses produtos? (Sim, para continuar)");
-//		compras = leitura.nextLine();
-//		return compras;
-//	}
-//	
-//	private List<CarrinhoDeCompras> lerInformacaoCarrinho(Scanner leitura) {
-//		String idProduto;
-//		String quantidade;
-//		idProduto = leitor.lerIdProdutoCarrinho(leitura, idProduto);
-//		System.out.println("Digite o ID do produto a ser adicionado no carrinho: ");
-//		idProduto = leitura.nextLine();
-//		System.out.println("Digite a quantidade desse produto a ser adicionado no carrinho: ");
-//		quantidade = leitura.nextLine();
-//		carrinhoDeCompras.add(new CarrinhoDeCompras(idProduto, quantidade));
-//		return carrinhoDeCompras;
-//	}
-
 

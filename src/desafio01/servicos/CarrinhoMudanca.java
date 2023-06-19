@@ -1,15 +1,16 @@
-package desafio01.services;
+package desafio01.servicos;
 
 import java.util.List;
 import java.util.Scanner;
 
 import desafio01.CarrinhoDeCompras;
-import desafio01.controller.ControladorCarrinho;
+import desafio01.controlador.ControladorCarrinho;
 
 public class CarrinhoMudanca {
-	private String id;
+	private String idCarrinho;
 	private String quantidadeCarrinho;
 	private String idAtualizar;
+	Integer resultadoEstoque = null;
 	ServicoCarrinho servicoCarrinho = new ServicoCarrinho();
 	
 
@@ -42,18 +43,20 @@ public class CarrinhoMudanca {
 	private void deletarCarrinho(Scanner leitura, Leitor leitor, List<CarrinhoDeCompras> carrinhoDeCompras, ControladorCarrinho controladorCarrinho) {
 		System.out.println("Aqui está o seu carrinho de compras: ");
 		controladorCarrinho.mostrarTudo(carrinhoDeCompras);
-		id = leitor.lerId(leitura);
-		System.out.println(id);
-		servicoCarrinho.conferirIdRemover(carrinhoDeCompras, controladorCarrinho, id);
+		idCarrinho = leitor.lerId(leitura);
+		servicoCarrinho.conferirIdRemover(carrinhoDeCompras, controladorCarrinho, idCarrinho);
 	}
 	
 	private void atualizarCarrinho(Scanner leitura, Leitor leitor, List<CarrinhoDeCompras> carrinhoDeCompras, ControladorCarrinho controladorCarrinho) {
 		System.out.println("Este é o seu carrinho: ");
 		controladorCarrinho.mostrarTudo(carrinhoDeCompras);
 		idAtualizar = leitor.lerIdAtualizar(leitura);
-		id = leitor.lerId(leitura);
+		idCarrinho = leitor.lerId(leitura);
 		quantidadeCarrinho = leitor.lerQuantidadeCarrinho(leitura);
-		servicoCarrinho.conferirIdAtualizar(carrinhoDeCompras, controladorCarrinho, idAtualizar, id, quantidadeCarrinho);
+		resultadoEstoque = servicoCarrinho.verificarEstoque(controladorCarrinho, servicoCarrinho, carrinhoDeCompras, idCarrinho, quantidadeCarrinho, resultadoEstoque);
+		if(resultadoEstoque >= 1) {
+			servicoCarrinho.conferirIdAtualizar(carrinhoDeCompras, controladorCarrinho, idAtualizar, idCarrinho, quantidadeCarrinho);
+		}
 
 	}
 

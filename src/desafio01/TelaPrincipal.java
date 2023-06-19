@@ -2,7 +2,7 @@ package desafio01;
 
 import java.util.Scanner;
 
-import desafio01.services.ServicoTela;
+import desafio01.servicos.ServicoTela;
 
 public class TelaPrincipal {
 
@@ -30,6 +30,7 @@ public class TelaPrincipal {
 				telaService.iniciarOpcao5(leitura, telaService);
 				break;
 			case "6":
+				System.out.println("Desligando...");
 				leitura.close();
 				System.exit(0);
 			}

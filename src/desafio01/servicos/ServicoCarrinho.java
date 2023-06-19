@@ -1,4 +1,4 @@
-package desafio01.services;
+package desafio01.servicos;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -6,11 +6,13 @@ import java.util.List;
 import java.util.Scanner;
 
 import desafio01.CarrinhoDeCompras;
-import desafio01.controller.ControladorCarrinho;
-import desafio01.controller.ControladorProduto;
+import desafio01.controlador.ControladorCarrinho;
+import desafio01.controlador.ControladorProduto;
 
 public class ServicoCarrinho {
-
+	String compras = "1";
+	int contagem = 0;
+	int resultadoEstoque = 0;
 	public String Iniciar(Scanner leitura) {
 		System.out.println("Seja bem-vindo ao carrinho de compras, para continuar selecione uma das opções abaixo: \n"
 				+ "1. Buscar por todos os produtos cadastrados. \n"
@@ -87,16 +89,16 @@ public class ServicoCarrinho {
 	}
 	public List<CarrinhoDeCompras> manipularProdutos(Scanner leitura, Leitor leitor, 
 			List<CarrinhoDeCompras> carrinhoDeCompras,ServicoCarrinho servicoCarrinho, ControladorCarrinho controladorCarrinho) {
-		String compras = null;
+		
 		String idCarrinho;
 		String quantidadeCarrinho;
-		compras = leitor.lerCompras(leitura, compras);
+
 		while(compras.equals("1")) {
+			compras = leitor.lerCompras(leitura, compras);
 			if(compras.equalsIgnoreCase("1")) {
 				idCarrinho = leitor.lerId(leitura);
 				quantidadeCarrinho = leitor.lerQuantidadeCarrinho(leitura);
 				servicoCarrinho.verificarExistencia(controladorCarrinho, servicoCarrinho, carrinhoDeCompras, idCarrinho, quantidadeCarrinho);
-				compras = leitor.lerCompras(leitura, compras);
 			}
 			else {
 				System.out.println("Voltando...");
@@ -105,22 +107,40 @@ public class ServicoCarrinho {
 		return carrinhoDeCompras;
 	}
 	
-	private void verificarExistencia(ControladorCarrinho controladorCarrinho, ServicoCarrinho servicoCarrinho, 
+	private Integer verificarExistencia(ControladorCarrinho controladorCarrinho, ServicoCarrinho servicoCarrinho, 
 			List<CarrinhoDeCompras> carrinhoDeCompras, String idCarrinho, String quantidadeCarrinho){
-		int contagem = 0;
+
 		contagem = controladorCarrinho.verificarExistenciaProduto(servicoCarrinho, idCarrinho, contagem);
-		System.out.println(contagem);
 		if(contagem >= 1) {
-			servicoCarrinho.adicionarProduto(controladorCarrinho, carrinhoDeCompras, idCarrinho, quantidadeCarrinho);
+			resultadoEstoque = servicoCarrinho.verificarEstoque(controladorCarrinho, servicoCarrinho, carrinhoDeCompras, idCarrinho, quantidadeCarrinho, resultadoEstoque);	
+			if(resultadoEstoque >= 1) {
+				servicoCarrinho.adicionarProduto(controladorCarrinho, carrinhoDeCompras, idCarrinho, quantidadeCarrinho);
+			}
 		}
 		else {	
+			resultadoEstoque = 0;
 			System.out.println("Produto inexistente");
 		}
+		return resultadoEstoque;
 	}
 	
-	
-	private void adicionarProduto(ControladorCarrinho controladorCarrinho, List<CarrinhoDeCompras> 
+	public Integer verificarEstoque(ControladorCarrinho controladorCarrinho, ServicoCarrinho servicoCarrinho, 
+			List<CarrinhoDeCompras> carrinhoDeCompras, String idCarrinho, String quantidadeCarrinho, Integer resultadoEstoque) {
+		Integer nEstoque = 0;
+		nEstoque = controladorCarrinho.verificarEstoque(carrinhoDeCompras, idCarrinho, nEstoque);
+			if(Integer.parseInt(quantidadeCarrinho) <= nEstoque) {
+				resultadoEstoque = 1;
+			}
+			else {
+				resultadoEstoque = 0;
+				System.out.println("O estoque desse produto é menor do que a quantidade que você gostaria de adicionar ao carrinho.");
+		}
+		return resultadoEstoque;
+	}
+
+	public void adicionarProduto(ControladorCarrinho controladorCarrinho, List<CarrinhoDeCompras> 
 				carrinhoDeCompras, String idCarrinho, String quantidadeCarrinho) {
+		
 		if(!(carrinhoDeCompras.isEmpty())) {
 			for(CarrinhoDeCompras carrinhoMostrar : carrinhoDeCompras) {
 				if(carrinhoMostrar.getIdProduto().equals(idCarrinho)){
@@ -128,13 +148,19 @@ public class ServicoCarrinho {
 					System.out.println("Produto já existia, portanto atualizamos ele no carrinho");
 					break;
 				}
-		}
+				else {
+					carrinhoDeCompras.add(new CarrinhoDeCompras(idCarrinho, quantidadeCarrinho));
+					System.out.println("Produto adicionado ao carrinho!");
+					break;
+				}
+					
+			}
 		}
 		else {
 				carrinhoDeCompras.add(new CarrinhoDeCompras(idCarrinho, quantidadeCarrinho));
 				System.out.println("Produto adicionado ao carrinho!");
 			}	
-		}
+	}
 	
 	public int contarResultado(ResultSet resultSet, Integer contagem) {
 		try {
@@ -144,11 +170,9 @@ public class ServicoCarrinho {
 			}
 			if(contagem == 0) {
 				contagem = 0;
-				System.out.println(contagem);
 			}
 			else {
 				contagem = 1;
-				System.out.println(contagem);
 			}
 		} catch (SQLException e) {
 		System.out.println("Não foi possível executar a querry");
@@ -158,7 +182,7 @@ public class ServicoCarrinho {
 
 	public void somarCarrinho(ControladorCarrinho controladorCarrinho, List<CarrinhoDeCompras> carrinhoDeCompras, Integer id_vendas) {
 		double totalVendas = 0;
-		controladorCarrinho.adicionarBanco(carrinhoDeCompras);
+		controladorCarrinho.adicionarBanco(carrinhoDeCompras, id_vendas);
 		totalVendas = controladorCarrinho.somarTotal(id_vendas, totalVendas);
 		System.out.println("O total do carrinho é de: " +  totalVendas);
 	}
@@ -172,11 +196,11 @@ public class ServicoCarrinho {
 		else {
 			System.out.println("Voltando...");
 		}
+		carrinhoDeCompras.clear();
 	}
 
-	public Integer criarIdVendas(Leitor leitor, ControladorCarrinho controladorCarrinho) {
-		controladorCarrinho.pegarIdVendas();
-		return (controladorCarrinho.pegarIdVendas() + 1);
+	public Integer criarIdVendas(ControladorCarrinho controladorCarrinho) {
+		return (controladorCarrinho.pegarIdVendas());
 	}
 
 	public void mostrarCompras(ControladorCarrinho controladorCarrinho) {

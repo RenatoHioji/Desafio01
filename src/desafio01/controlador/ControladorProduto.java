@@ -1,4 +1,4 @@
-package desafio01.controller;
+package desafio01.controlador;
 
 import java.sql.Connection;
 import java.sql.ResultSet;

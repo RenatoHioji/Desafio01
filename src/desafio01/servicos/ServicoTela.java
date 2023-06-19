@@ -1,4 +1,4 @@
-package desafio01.services;
+package desafio01.servicos;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -6,8 +6,8 @@ import java.util.Scanner;
 
 import desafio01.CarrinhoDeCompras;
 import desafio01.Produtos;
-import desafio01.controller.ControladorCarrinho;
-import desafio01.controller.ControladorProduto;
+import desafio01.controlador.ControladorCarrinho;
+import desafio01.controlador.ControladorProduto;
 
 public class ServicoTela {
 	
@@ -73,6 +73,7 @@ public class ServicoTela {
 
 	public void opcao4(Scanner leitura) {
 		String idAtualizar = "0";
+		simNao = "1";
 		while(simNao.equals("1")) {
 			System.out.println("Nessa área você poderá atualizar um produto, vamos começar pelo ID: ");
 			id = leitor.lerId(leitura);
@@ -87,10 +88,11 @@ public class ServicoTela {
 	}
 	
 	public void iniciarOpcao5(Scanner leitura, ServicoTela servicoTela) {
+			Integer id_vendas = 0;
 			String adicionarOutro = "1";
 			String opcaoCarrinho;
 			List<CarrinhoDeCompras> carrinhoDeCompras = new ArrayList<>();
-			//Adicionar Produto
+			id_vendas = servicoCarrinho.criarIdVendas(controladorCarrinho);
 			while(adicionarOutro.equals("1")) {
 				opcaoCarrinho = servicoCarrinho.Iniciar(leitura); 
 				if(opcaoCarrinho.equals("3")) {
@@ -100,11 +102,9 @@ public class ServicoTela {
 					servicoCarrinho.mostrarProdutos(opcaoCarrinho, leitura, nome, controladorProduto);
 					carrinhoDeCompras = servicoCarrinho.manipularProdutos(leitura, leitor, carrinhoDeCompras, servicoCarrinho, controladorCarrinho);
 					adicionarOutro = servicoCarrinho.mostrarOutrosProdutos(leitura, adicionarOutro);
-				
 				}
-				
 			}
-			//Mudanca/Compra
+
 			while(adicionarOutro.equals("2")) {
 				if(verificarCarrinho.equals(servicoCarrinho.verificarCarrinho(carrinhoDeCompras))) {
 					System.out.println("Aqui está o seu carrinho de compras:");
@@ -112,8 +112,6 @@ public class ServicoTela {
 					controladorCarrinho.mostrarTudo(carrinhoDeCompras);
 					opcaoMudanca = carrinhoMudanca.verificarMudanca(leitura,leitor);		
 					if(opcaoMudanca.equals("2")){
-						Integer id_vendas = 0;
-						id_vendas = servicoCarrinho.criarIdVendas(leitor, controladorCarrinho);
 						servicoCarrinho.somarCarrinho(controladorCarrinho, carrinhoDeCompras, id_vendas);
 						confirmarCompra = leitor.lerContinuar(leitura);
 						servicoCarrinho.finalizarCompra(confirmarCompra, carrinhoDeCompras, controladorCarrinho, id_vendas);			
@@ -135,5 +133,5 @@ public class ServicoTela {
 	
 	
 	
-		/*Mandar pro CarrinhoService*/
+
 }
