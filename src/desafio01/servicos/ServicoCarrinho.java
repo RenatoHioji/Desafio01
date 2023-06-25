@@ -19,7 +19,8 @@ public class ServicoCarrinho {
 				+ "2. Buscar um produto específico por nome. \n"
 				+ "3. Ver todas as minhas compras.");
 		
-		String opcaoCarrinho = leitura.nextLine();
+		String opcaoCarrinho = leitura.nextLine(); 
+
 		return opcaoCarrinho;
 	}
 	
@@ -92,7 +93,7 @@ public class ServicoCarrinho {
 		
 		String idCarrinho;
 		String quantidadeCarrinho;
-
+		compras = "1";
 		while(compras.equals("1")) {
 			compras = leitor.lerCompras(leitura, compras);
 			if(compras.equalsIgnoreCase("1")) {

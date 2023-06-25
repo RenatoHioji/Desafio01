@@ -45,7 +45,6 @@ public class ServicoTela {
 		simNao = "1";
 		while(simNao.equals("1")) {
 			System.out.println("Nessa área você poderá adicionar um novo produto, vamos começar pelo ID: ");
-			
 			id = leitor.lerId(leitura);
 			nome = leitor.lerNome(leitura); 
 			valor = leitor.lerValor(leitura);
@@ -103,7 +102,9 @@ public class ServicoTela {
 					carrinhoDeCompras = servicoCarrinho.manipularProdutos(leitura, leitor, carrinhoDeCompras, servicoCarrinho, controladorCarrinho);
 					adicionarOutro = servicoCarrinho.mostrarOutrosProdutos(leitura, adicionarOutro);
 				}
+				
 			}
+		
 
 			while(adicionarOutro.equals("2")) {
 				if(verificarCarrinho.equals(servicoCarrinho.verificarCarrinho(carrinhoDeCompras))) {

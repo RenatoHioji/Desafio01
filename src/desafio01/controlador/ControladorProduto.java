@@ -27,11 +27,13 @@ public class ControladorProduto {
         } catch (SQLException e) {
             System.out.println("Não foi possível estabelecer a conexão...");
         }
+        
 	}
 
 
 	
 	public void verProdutos(){
+		contadorWhileLista = 1;
 		try {
 		    ResultSet resultSet = declaracao.executeQuery("SELECT * FROM produtos");
 		    while (resultSet.next()) {
