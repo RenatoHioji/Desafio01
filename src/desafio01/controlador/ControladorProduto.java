@@ -50,14 +50,17 @@ public class ControladorProduto {
 		}
 	}
 	
-	public String procurarProdutos(Produtos produtoAdicionado) throws SQLException {	
+	public String procurarProdutos(Produtos produtoAdicionado) throws SQLException {
+		String confirmacao = null;
 		try {
 		    this.produtoManipulado = produtoAdicionado;
 		    ResultSet resultSet = declaracao.executeQuery("SELECT * FROM produtos");
 		    while (resultSet.next()) {
-		        if (produtoManipulado.getNome().equalsIgnoreCase(resultSet.getString("nome"))) {
+		        if (produtoManipulado.getId() == resultSet.getInt("id")) {
 		            quantidadeTotal = produtoManipulado.getEstoque() + resultSet.getInt("estoque");
-		            comando = "UPDATE produtos SET quantidade = " + quantidadeTotal;
+		            comando = "UPDATE produtos SET estoque = " + quantidadeTotal + " WHERE id= " + produtoManipulado.getId();
+		            confirmacao = "Produto Atualizado com sucesso";
+		            break;
 		        } else {
 		            comando = "INSERT INTO produtos"
 		                    + "(id, nome, valor, estoque) VALUES "
@@ -65,27 +68,22 @@ public class ControladorProduto {
 		                    + produtoAdicionado.getNome() + "', "
 		                    + produtoAdicionado.getValor() + ","
 		                    + produtoAdicionado.getEstoque() + ")";
+		            confirmacao = "Produto adicionado com sucesso";
 		        }
 		    }
+
 		} catch (SQLException e) {
 		    System.out.println("Não foi possível inserir o produto.");
 		}
+		System.out.println(confirmacao);
 	    return comando;
 	}
 
-	public Integer adicionarProduto(Produtos produtoAdicionado){
+	public void adicionarProduto(Produtos produtoAdicionado){
 		try {
-			int AdicionaProduto = declaracao.executeUpdate(procurarProdutos(produtoAdicionado));
-			if(AdicionaProduto >= 1){
-				System.out.println("Produto inserido com sucesso.");
-			}
-			else {
-				System.out.println("ID do produto já existente!");
-			}
-			return AdicionaProduto;
+			declaracao.executeUpdate(procurarProdutos(produtoAdicionado));
 		} catch (SQLException e) {
 			System.out.println("Tivemos algum problema na inserção do produto.");
-			return 0;
 		}	
 	}
 	
